@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ne Kadar Aptalsın Testi</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0d0d0d, #222); /* Siyah ve koyu gri tonlarında arka plan */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #eee; /* Açık gri metin rengi */
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #quiz-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question {
+            font-size: 1.8em;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.8s ease-in-out forwards;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.8s ease-in-out 0.2s forwards;
+        }
+
+        .option {
+            background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            color: #eee; /* Açık gri metin rengi */
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: inherit;
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .option:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .option:hover::before {
+            transform: scaleX(1);
+        }
+
+        .option-text {
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.3em;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transform: translateY(10px);
+        }
+
+        .feedback.correct {
+            color: #4caf50;
+            animation: feedbackAnimation 0.5s ease-in-out forwards;
+        }
+
+        .feedback.wrong {
+            color: #f44336;
+            animation: feedbackAnimation 0.5s ease-in-out forwards;
+        }
+
+        @keyframes feedbackAnimation {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #result {
+            margin-top: 40px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+          #result img {
+            max-width: 300px; /* Resmin maksimum genişliği */
+             display: block;
+            margin: 20px auto; /* Ortalamak ve üstte biraz boşluk bırakmak için */
+             border-radius: 8px; /* Resim köşe yuvarlaklığı */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div class="question" id="question1">13 Killoki'nin hangi şarkıcıyla feat çalışması yoktur?</div>
+        <div class="options" id="options1">
+            <div class="option" onclick="checkAnswer(1, 'a')">
+                <span class="option-text">A) Arrazene</span>
+                <div class="feedback" id="feedback1a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(1, 'b')">
+                <span class="option-text">B) Yung Cihad</span>
+                <div class="feedback" id="feedback1b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(1, 'c')">
+                <span class="option-text">C) Jeffsmoke</span>
+                <div class="feedback" id="feedback1c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(1, 'd')">
+                <span class="option-text">D) Azure Wrath</span>
+                <div class="feedback" id="feedback1d"></div>
+            </div>
+        </div>
+
+        <div class="question hidden" id="question2">Swirf nerelidir ve neden İsviçreliyim der?</div>
+        <div class="options hidden" id="options2">
+            <div class="option" onclick="checkAnswer(2, 'a')">
+                <span class="option-text">A) Ordu, güzel kızları etkilemek için</span>
+                <div class="feedback" id="feedback2a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(2, 'b')">
+                <span class="option-text">B) İsviçre çünkü İsviçreli'dir</span>
+                <div class="feedback" id="feedback2b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(2, 'c')">
+                <span class="option-text">C) Ordu, çocukluğunda zorbalığa uğradığı için</span>
+                <div class="feedback" id="feedback2c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(2, 'd')">
+                <span class="option-text">D) Kütahya, güzel kızları etkilemek için</span>
+                <div class="feedback" id="feedback2d"></div>
+            </div>
+        </div>
+
+        <div class="question hidden" id="question3">Swirf'in hangi şarkıcıyla feat çalışması yoktur?</div>
+        <div class="options hidden" id="options3">
+            <div class="option" onclick="checkAnswer(3, 'a')">
+                <span class="option-text">A) EGE!</span>
+                <div class="feedback" id="feedback3a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(3, 'b')">
+                <span class="option-text">B) Mertigo</span>
+                <div class="feedback" id="feedback3b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(3, 'c')">
+                <span class="option-text">C) D-azy</span>
+                <div class="feedback" id="feedback3c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(3, 'd')">
+                <span class="option-text">D) Yung Ouzo</span>
+                <div class="feedback" id="feedback3d"></div>
+            </div>
+        </div>
+
+        <div class="question hidden" id="question4">13 Killoki'nin LoL maini nedir?</div>
+        <div class="options hidden" id="options4">
+            <div class="option" onclick="checkAnswer(4, 'a')">
+                <span class="option-text">A) Tristana</span>
+                <div class="feedback" id="feedback4a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(4, 'b')">
+                <span class="option-text">B) Garen</span>
+                <div class="feedback" id="feedback4b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(4, 'c')">
+                <span class="option-text">C) Yasuo</span>
+                <div class="feedback" id="feedback4c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(4, 'd')">
+                <span class="option-text">D) Thresh</span>
+                <div class="feedback" id="feedback4d"></div>
+            </div>
+        </div>
+
+        <div class="question hidden" id="question5">$inkid$ ne demektir?</div>
+        <div class="options hidden" id="options5">
+            <div class="option" onclick="checkAnswer(5, 'a')">
+                <span class="option-text">A) Kötü çocuklar</span>
+                <div class="feedback" id="feedback5a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(5, 'b')">
+                <span class="option-text">B) Kızgın çocuklar</span>
+                <div class="feedback" id="feedback5b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(5, 'c')">
+                <span class="option-text">C) Günah çocukları</span>
+                <div class="feedback" id="feedback5c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(5, 'd')">
+                <span class="option-text">D) Bağıran çocuklar</span>
+                <div class="feedback" id="feedback5d"></div>
+            </div>
+        </div>
+        
+         <div class="question hidden" id="question6">Deha INC.'in çocukken fotoğraf çekilip facebook'a attığı ünlü kimdir?</div>
+        <div class="options hidden" id="options6">
+            <div class="option" onclick="checkAnswer(6, 'a')">
+                <span class="option-text">A) Ufuk Yıkılmaz</span>
+                <div class="feedback" id="feedback6a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(6, 'b')">
+                <span class="option-text">B) Mert Güngördü</span>
+                <div class="feedback" id="feedback6b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(6, 'c')">
+                <span class="option-text">C) Murat Kafkas</span>
+                <div class="feedback" id="feedback6c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(6, 'd')">
+                <span class="option-text">D) Fatih Terim</span>
+                <div class="feedback" id="feedback6d"></div>
+            </div>
+        </div>
+        
+        <div class="question hidden" id="question7">13 Killoki attığı tweet'te kendisinden gengar olarak bahseden kişiye kendisinin haunter, gengarın ise kim olduğunu söylemiştir?</div>
+        <div class="options hidden" id="options7">
+            <div class="option" onclick="checkAnswer(7, 'a')">
+                <span class="option-text">A) Swirf</span>
+                <div class="feedback" id="feedback7a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(7, 'b')">
+                <span class="option-text">B) Şehinşah</span>
+                <div class="feedback" id="feedback7b"></div>
+            </div>
+             <div class="option" onclick="checkAnswer(7, 'c')">
+                <span class="option-text">C) Deha INC.</span>
+                <div class="feedback" id="feedback7c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(7, 'd')">
+                <span class="option-text">D) Yung Ouzo</span>
+                <div class="feedback" id="feedback7d"></div>
+            </div>
+        </div>
+        
+         <div class="question hidden" id="question8">13 Killoki'nin kendi yaptığı en sevdiği şarkısı nedir?</div>
+        <div class="options hidden" id="options8">
+            <div class="option" onclick="checkAnswer(8, 'a')">
+                <span class="option-text">A) Yalan</span>
+                <div class="feedback" id="feedback8a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(8, 'b')">
+                <span class="option-text">B) Şehrim Bereketli</span>
+                <div class="feedback" id="feedback8b"></div>
+            </div>
+             <div class="option" onclick="checkAnswer(8, 'c')">
+                <span class="option-text">C) Underground Prodigy</span>
+                <div class="feedback" id="feedback8c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(8, 'd')">
+                <span class="option-text">D) Pembe Yalanlar</span>
+                <div class="feedback" id="feedback8d"></div>
+            </div>
+        </div>
+        
+          <div class="question hidden" id="question9">13 Killoki'nin diss attığı prodüktör kimdir?</div>
+        <div class="options hidden" id="options9">
+            <div class="option" onclick="checkAnswer(9, 'a')">
+                <span class="option-text">A) Goaty</span>
+                <div class="feedback" id="feedback9a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(9, 'b')">
+                <span class="option-text">B) Kachi</span>
+                <div class="feedback" id="feedback9b"></div>
+            </div>
+              <div class="option" onclick="checkAnswer(9, 'c')">
+                <span class="option-text">C) Bugy</span>
+                <div class="feedback" id="feedback9c"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(9, 'd')">
+                <span class="option-text">D) DJ Artz</span>
+                <div class="feedback" id="feedback9d"></div>
+            </div>
+        </div>
+
+         <div class="question hidden" id="question10">Aşağıdakilerden hangisinin Spotify'da kapağı değişmiştir?</div>
+        <div class="options hidden" id="options10">
+            <div class="option" onclick="checkAnswer(10, 'a')">
+                <span class="option-text">A) Kişilik Bozukluğu (KBNJ)</span>
+                <div class="feedback" id="feedback10a"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(10, 'b')">
+                <span class="option-text">B) Aradan Çok Yıllar Geçti</span>
+                <div class="feedback" id="feedback10b"></div>
+            </div>
+            <div class="option" onclick="checkAnswer(10, 'c')">
+                <span class="option-text">C) EGETSTN</span>
+                <div class="feedback" id="feedback10c"></div>
+            </div>
+             <div class="option" onclick="checkAnswer(10, 'd')">
+                <span class="option-text">D) 2CupShakur</span>
+                <div class="feedback" id="feedback10d"></div>
+            </div>
+        </div>
+       
+
+        <div id="result" class="hidden"></div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let score = 0;
+        let canClick = true;
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = `${Math.random() * 4 + 2}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.animationDuration = `${Math.random() * 4 + 2}s`;
+            document.body.appendChild(star);
+
+            star.addEventListener('animationend', () => star.remove());
+
+            // Rastgele yönlendirme ve boyut belirle
+            star.style.animationName = Math.random() > 0.5 ? 'twinkleUp' : 'twinkleDown';
+            star.style.opacity = Math.random() * 0.7 + 0.3;
+        }
+        setInterval(createStar, 200);
+        // Her 200ms'de yıldız oluştur
+
+        function checkAnswer(questionNumber, selectedOption) {
+              if (!canClick) return;
+            canClick = false;
+
+            const correctAnswers = {
+                1: 'b',
+                2: 'a',
+                3: 'd',
+                4: 'd',
+                5: 'c',
+                6: 'b',
+                7: 'd',
+                8: 'b',
+                9: 'd',
+                10: 'a'
+            };
+
+            const isCorrect = selectedOption === correctAnswers[questionNumber];
+            const feedbackId = `feedback${questionNumber}${selectedOption}`;
+            const feedbackElement = document.getElementById(feedbackId);
+
+            if (isCorrect) {
+                feedbackElement.textContent = 'Doğru!';
+                feedbackElement.className = 'feedback correct show';
+                score++;
+            } else {
+                feedbackElement.textContent = 'Yanlış!';
+                feedbackElement.className = 'feedback wrong show';
+            }
+
+            setTimeout(() => {
+                feedbackElement.className = 'feedback';
+
+                document.getElementById(`question${questionNumber}`).classList.add('hidden');
+                document.getElementById(`options${questionNumber}`).classList.add('hidden');
+                currentQuestion++;
+                canClick = true;
+                if (currentQuestion <= 10) {
+                    document.getElementById(`question${currentQuestion}`).classList.remove('hidden');
+                    document.getElementById(`options${currentQuestion}`).classList.remove('hidden');
+                } else {
+                    showResult();
+                }
+            }, 1200);
+        }
+
+        function showResult() {
+           const resultDiv = document.getElementById('result');
+           resultDiv.classList.remove('hidden');
+           let resultMessage = `Sınav tamamlandı! Puanınız: ${score} / 10`;
+
+           if (score >= 1 && score <= 3) {
+                resultMessage += ` Çok acil kendine <br> $inkid$ <br> playlisti yapmalısın.`;
+            } else if (score >= 4 && score <= 6) {
+                resultMessage += ` <br> $inkid$ <br> işini arttırman lazım.`;
+            } else if (score >= 7 && score <= 9) {
+                resultMessage += ` <img src="https://i.ibb.co/VVCgkqG/killokihel-20241215-0001.jpg" alt="killokihel-20241215-0001" border="0">`;
+            } else if (score === 10) {
+                resultMessage += ` <img src="https://i.ibb.co/JKhFjjG/killokihel-20241216-0001.jpg" alt="killokihel-20241216-0001" border="0">`;
+            }
+
+            resultDiv.innerHTML = resultMessage;
+        }
+
+    </script>
+        <style>
+        @keyframes twinkleUp {
+             0% {
+                opacity: 0.2;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+             25% {
+                opacity: 0.6;
+                transform: translateY(-20px) scale(1.2) rotate(360deg);
+            }
+              50% {
+                 opacity: 0.9;
+                 transform: translateY(-40px) scale(1) rotate(0deg);
+            }
+               75% {
+                 opacity: 0.5;
+                 transform: translateY(-60px) scale(1.2) rotate(-360deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(1) rotate(0deg);
+            }
+        }
+        @keyframes twinkleDown {
+              0% {
+                opacity: 0.2;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+             25% {
+                opacity: 0.6;
+                transform: translateY(20px) scale(1.2) rotate(360deg);
+            }
+              50% {
+                 opacity: 0.9;
+                 transform: translateY(40px) scale(1) rotate(0deg);
+            }
+               75% {
+                 opacity: 0.5;
+                 transform: translateY(60px) scale(1.2) rotate(-360deg);
+            }
+            100% {
+                opacity: 0;
+                 transform: translateY(80px) scale(1) rotate(0deg);
+            }
+        }
+
+    </style>
+</body>
+</html>
